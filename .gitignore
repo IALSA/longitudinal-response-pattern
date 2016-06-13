@@ -50,3 +50,7 @@ Desktop.ini
 
 
 *.rds
+data/unshared/raw/dataset_285_basic03-2014.xlsx
+data/unshared/raw/dataset_285_long03-2014.xlsx
+data/unshared/raw/dataset_465_basic.xls
+data/unshared/raw/dataset_465_long.xls
