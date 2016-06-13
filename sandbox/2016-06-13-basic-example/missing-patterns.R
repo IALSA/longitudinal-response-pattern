@@ -24,8 +24,8 @@ table(ds$pattern)
 # ----- start-here ------
 
 #load data
-ds4ws <-readRDS("./data-unshared/derived/ds4ws.rds")# small version of wide format data
-ds4w <-readRDS("./data-unshared/derived/ds4w.rds")# small version of wide format data
+# ds4ws <-readRDS("./data/unshared/derived/ds4ws.rds")# small version of wide format data
+ds4w <- readRDS("./data/unshared/derived/ds4w.rds")# small version of wide format data
 # ds4w <-readRDS("./data/derived/ds4w.rds")#full version of wide format data
 
 
@@ -35,12 +35,12 @@ ds4w <-readRDS("./data-unshared/derived/ds4w.rds")# small version of wide format
 #stroke 0-12
 #stroke_cum 0-12
 #stroke_status 0-12 : binary created variable with 0 as no stroke and stroke as 1
-names(ds4ws)
+# names(ds4ws)
 varnames <- names(ds4w %>%
   dplyr::select(contains("stroke_status")))
 dots = c("projid", varnames)
 # d <- ds4w %>% dplyr::select_(.dots = dots)
-d <- ds4ws %>% dplyr::select_(.dots = dots)
+d <- ds4w %>% dplyr::select_(.dots = dots)
 
 d$pattern <- nlmeU::missPat(d)
 
