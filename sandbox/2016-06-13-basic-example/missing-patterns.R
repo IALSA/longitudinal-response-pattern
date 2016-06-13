@@ -59,6 +59,31 @@ d %>%
   )
 
 
+# ----
+varnames <- names(ds4w %>%
+                    dplyr::select(contains("stroke_status")))
+dots = c("projid", varnames)
+ds <- ds4w %>% dplyr::select_(.dots = dots)
+# ds <- ds[,1:4]
+head(ds)
+
+varnames
+
+
+# ds$pattern <- paste0(ds$stroke_status.0, ds$stroke_status.1, ds$stroke_status.2)
+
+# Create a string variables that records the response pattern of each individual
+# see http://stackoverflow.com/questions/14568662/paste-multiple-columns-together-in-r
+
+ds$pattern <- apply( ds[, varnames], 1 , paste , collapse = "-" )
+# remove the unnecessary rows
+keep_variables <- setdiff(colnames(ds), varnames)
+ds <- as.data.frame(ds[ , keep_variables ])
+        
+
+
+
+
   
 
 
