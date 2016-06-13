@@ -16,23 +16,32 @@ getwd()
 # --- load-packages ------
 
 search() # see which pachages are currently attached
-
-library(gdata) #read.xls
-library(dplyr)
-library(reshape2)
-
+# install.packages("gdata")
+library("gdata") #read.xls
+requireNamespace("dplyr")
+library("reshape2")
+requireNamespace("testit")
 # ----- import_raw_files ------
 #new data from RADC 2016
 #need to change pathway to fit where you have saved these files
-longa <- read.xls("./data/raw/dataset_465_long.xls") #long format new data
-basic <- read.xls("./data/raw/dataset_465_basic.xls") #wide format new data
+longaPath <- "./data/unshared/raw/dataset_465_long.xls"
+testit::assert("No such file exists", base::file.exists(longaPath) )
+
+### THIS IS A FAR AS WE GOT ON 2016-06-16 
+
+
+longa <- gdata::read.xls("./data/unshared/raw/dataset_465_long.xls") #long format new data
+basic <- read.xls("./data/unshared/raw/dataset_465_basic.xls") #wide format new data
+
+testit::assert("No such file exists", base::file.exists(longa) )
+
 #notes: basic has 3125 unique id's and 1803 unique id's in MAP
 
 #old original file from RADC 2014
 #need to change pathway to fit where you have saved these files
-longc <- read.xls("./data/raw/From IALSA server/dataset_285_long03-2014.xlsx") 
+longc <- read.xls("./data/unshared/raw/From IALSA server/dataset_285_long03-2014.xlsx") 
 # 26707, 89
-oldbasic <- read.xls("./data/raw/From IALSA server/dataset_285_basic03-2014.xlsx")
+oldbasic <- read.xls("./data/unshared/raw/From IALSA server/dataset_285_basic03-2014.xlsx")
 #notes: oldbasic has 3477 unique id's, in 3 different studies (MAP,MARS,ROS) 
 # and 1696 unique id's in MAP, less than the above: could use left join
 
