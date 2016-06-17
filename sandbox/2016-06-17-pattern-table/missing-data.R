@@ -21,9 +21,9 @@ library(knitr)
 # @knitr LoadData --------------------
 # Link to the data source 
 pathDir <- getwd()
-ds4w <- readRDS("./data/derived/ds4w.rds")
+ds4w <- readRDS("./data/unshared/derived/ds4w.rds")
 
-
+ 
 # @knitr Table --------------------
 varnames <- names(ds4w %>%
                     dplyr::select(contains("stroke_cum")))
