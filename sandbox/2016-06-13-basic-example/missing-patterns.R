@@ -37,7 +37,7 @@ ds4w <- readRDS("./data/unshared/derived/ds4w.rds")# small version of wide forma
 #stroke_status 0-12 : binary created variable with 0 as no stroke and stroke as 1
 # names(ds4ws)
 varnames <- names(ds4w %>%
-  dplyr::select(contains("stroke_status")))
+  dplyr::select(contains("stroke_cum")))
 dots = c("projid", varnames)
 # d <- ds4w %>% dplyr::select_(.dots = dots)
 d <- ds4w %>% dplyr::select_(.dots = dots)
@@ -61,7 +61,7 @@ d %>%
 
 # ----
 varnames <- names(ds4w %>%
-                    dplyr::select(contains("stroke_status")))
+                    dplyr::select(contains("stroke_cum")))
 dots = c("projid", varnames)
 ds <- ds4w %>% dplyr::select_(.dots = dots)
 # ds <- ds[,ds==NA]
