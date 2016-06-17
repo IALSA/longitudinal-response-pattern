@@ -75,12 +75,13 @@ d <- as.data.frame(d[ , keep_variables ])
 ds_pattern <- d %>% 
   dplyr::group_by(pattern) %>% 
   dplyr::summarize(count = n()) %>% 
-  dplyr::arrange(desc(count))
+  dplyr::arrange(pattern)
+  # dplyr::arrange(desc(count))
 
 ds_pattern %>%
   DT::datatable(
     class     = 'cell-border stripe',
-    caption   = "Pattern of missingness across time points",
+    caption   = "Response pattern across time points ( dots stand for missing values)",
     filter    = "none",
     options   = list(pageLength = 10, autoWidth = TRUE)
   )

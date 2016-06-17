@@ -1,5 +1,5 @@
 ---
-title: "Title"
+title: "Response patterns : frequencies"
 output:
   html_document:
     keep_md: yes
@@ -78,11 +78,11 @@ read_chunk("./sandbox/2016-06-17-pattern-table/response-pattern-freqs.R")
 
 
 <!-- Basic table view.   -->
-```{r missing-values-table, echo=TRUE, results='show', message=FALSE, eval=F}
+```{r missing-values-table, echo=echoChunks, results='show', message=FALSE, eval=F}
 ```
 
 <!-- Basic graph view.   -->
-```{r binary-values-table, echo=TRUE, results='show', message=FALSE}
+```{r binary-values-table, echo=echoChunks, results='show', message=FALSE}
 ```
 
 
