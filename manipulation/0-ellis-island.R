@@ -24,24 +24,28 @@ requireNamespace("testit")
 # ----- import_raw_files ------
 #new data from RADC 2016
 #need to change pathway to fit where you have saved these files
-longaPath <- "./data/unshared/raw/dataset_465_long.xls"
+longaPath    <- "./data/unshared/raw/dataset_465_long.csv"
+basicPath    <- "./data/unshared/raw/dataset_465_basic.csv"
+longcPath    <- "./data/unshared/raw/dataset_285_long03-2014.csv" 
+oldbasicPath <- "./data/unshared/raw/dataset_285_basic03-2014.csv"
+
 testit::assert("No such file exists", base::file.exists(longaPath) )
+testit::assert("No such file exists", base::file.exists(basicPath) )
+testit::assert("No such file exists", base::file.exists(longcPath) )
+testit::assert("No such file exists", base::file.exists(oldbasicPath) )
 
 ### THIS IS A FAR AS WE GOT ON 2016-06-16 
 
-
-longa <- gdata::read.xls("./data/unshared/raw/dataset_465_long.xls") #long format new data
-basic <- read.xls("./data/unshared/raw/dataset_465_basic.xls") #wide format new data
-
-testit::assert("No such file exists", base::file.exists(longa) )
+longa <- readr::read_csv(longaPath)
+basic <- readr::read_csv(basicPath)
 
 #notes: basic has 3125 unique id's and 1803 unique id's in MAP
 
 #old original file from RADC 2014
 #need to change pathway to fit where you have saved these files
-longc <- read.xls("./data/unshared/raw/From IALSA server/dataset_285_long03-2014.xlsx") 
+longc <- readr::read_csv(longcPath)
 # 26707, 89
-oldbasic <- read.xls("./data/unshared/raw/From IALSA server/dataset_285_basic03-2014.xlsx")
+oldbasic <- readr::read_csv(oldbasicPath)
 #notes: oldbasic has 3477 unique id's, in 3 different studies (MAP,MARS,ROS) 
 # and 1696 unique id's in MAP, less than the above: could use left join
 
