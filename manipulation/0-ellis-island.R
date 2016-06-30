@@ -17,7 +17,8 @@ getwd()
 
 search() # see which pachages are currently attached
 # install.packages("gdata")
-library("gdata") #read.xls
+# library("gdata") #read.xls
+library("magrittr")
 requireNamespace("dplyr")
 library("reshape2")
 requireNamespace("testit")
@@ -81,9 +82,9 @@ dsb0 <- dplyr::left_join(basic, oldbasic, by = c("projid","study"))
 
 names(dsb0)
 #subset out some of the copied variables, ie race.x & race.y, remove the y's
-dsb01 <- select(dsb0, everything(), -ends_with(".y"))
+dsb01 <- dplyr::select(dsb0, everything(), -ends_with(".y"))
 names(dsb01)
-dsb02 <- select(dsb01, projid, study, cogdx, scaled_to=scaled_to.x, age_bl=age_bl.x, age_death=age_death.x, educ=educ.x, msex=msex.x,race=race.x,spanish=spanish.x, everything())
+dsb02 <- dplyr::select(dsb01, projid, study, cogdx, scaled_to=scaled_to.x, age_bl=age_bl.x, age_death=age_death.x, educ=educ.x, msex=msex.x,race=race.x,spanish=spanish.x, everything())
 
 #check variables from dsb, dsb0, dsb01 and dsb02 - all looks good
 dsb <- dsb02 #final version of both old and new basic files
@@ -122,17 +123,13 @@ rm(ds01)
 names(basic)
 names(wideb)
 names(longa)
-names(longb)
+# names(longb)
 
 #check number of unique participants before and after merge
 ds0$projid %>% unique() %>% length() #3730, full merge
 longa$projid %>% unique() %>% length() #3124
 longc$projid %>% unique() %>% length() #3476
 
-dsb$projid %>% unique() %>% length() #3690
-dsml$projid %>% unique() %>% length() #3475
-
-radc$projid %>% unique() %>% length()  #3786
 
 # ----- RADC to MAP ------
 #subset down to just MAP
@@ -147,7 +144,7 @@ rm(ds1)
 class(ds0)
 
 # ---- save -----
-saveRDS(ds0,"./data/derived/ds0_raw.rds")
+saveRDS(ds0,"./data/unshared/derived/ds0_raw.rds")
 
 #now import this file into 1-subsetting
 #or skip straight to 4-apply-codebook for GitHub
