@@ -33,7 +33,7 @@ ds_long <- ds0 %>%
   dplyr::select_(.dots = variables_to_select) # %>%
   # dplyr::rename(id = projid)
 # recode NA 
-ds_long$stroke_cum[is.na(ds_long$stroke_cum)] <- "."
+# ds_long$stroke_cum[is.na(ds_long$stroke_cum)] <- "."
 # ds <- ds[,1:4]
 head(ds_long)
 
@@ -114,13 +114,29 @@ ds_pattern <- d %>%
   dplyr::arrange(pattern)
   # dplyr::arrange(desc(count))
 
-ds_pattern %>%
-  DT::datatable(
-    class     = 'cell-border stripe',
-    caption   = "Response pattern across time points ( dots stand for missing values)",
-    filter    = "none",
-    options   = list(pageLength = 10, autoWidth = TRUE)
+# ds_pattern %>%
+#   DT::datatable(
+#     class     = 'cell-border stripe',
+#     caption   = "Response pattern across time points ( dots stand for missing values)",
+#     filter    = "none",
+#     options   = list(pageLength = 10, autoWidth = TRUE)
+#   )
+
+# ---- inspect-tables -----------------------------
+str(ds_distinct)
+library(ggplot2)
+dg <- ds_distinct %>% 
+  dplyr::group_by(fu_year) %>% 
+  dplyr::summarize(
+    count = n(),
+    pct_stroke = mean(stroke_cum, na.rm = T)
   )
+g <- ggplot2::ggplot(dg, aes(x = fu_year, y = pct_stroke))
+g <- g + ggplot2::geom_line(stat="identity")
+g <- g + geom_point(stat="identity")
+g
+
+
 
 # ---- reproduce ---------------------------------------
 rmarkdown::render(input = "./sandbox/2016-06-17-pattern-table/response-pattern-freqs.Rmd" ,
