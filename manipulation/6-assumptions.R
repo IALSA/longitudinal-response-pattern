@@ -11,7 +11,7 @@
 
 # ----- load-data ------
 getwd()
-ds <-readRDS("./data/derived/ds4.rds")
+ds <-readRDS("./data/derived/ds4l.rds")
 str(ds) 
 names(ds)
 
@@ -21,23 +21,59 @@ names(ds)
 # ds <- readRDS("./data/derived/COX/ds0.rds") 
 
 # ---- load libraries ------
-library(Hmisc)
-library(outliers)
-library(psych)
+
+if (!require("pastecs")) install.packages('pastecs')
+if (!require("psych")) install.packages('psych')
+if (!require("Hmisc")) install.packages('Hmisc')
+if (!require("outliers")) install.packages('outliers')
+if (!require("mvOutlier")) install.packages('mvOutlier')
+if (!require("scatterplot3d")) install.packages('scatterplot3d')
 names(ds)
 
 # ----- normality, linearity, homoscadasticity ------ 
 
 # histograms
 
-#mmse
+#mmse long
+hist(ds$mmse, 
+     main="Histogram for MAP", 
+     xlab="MMSE", 
+     border="blue", 
+     col="green", 
+     xlim=c(0,35), 
+     las=1, 
+     breaks=5, 
+     prob = TRUE)
+
+
 hist(ds$mmse, xlab="MMSE", ylab="y", col = "green") 
-plot(density(dsm$cts_mmse30))
-boxplot(ds$cts_mmse30) #wide data?
-skew(dsm$cts_mmse30) #[1] -2.602142
+boxplot(ds$mmse)
+
+#wide data
+hist(dsw$mmse.3, xlab="MMSE", ylab="y", col = "green") 
+plot(density(dsw$mmse.0))
+boxplot(dsw$mmse.0) 
+
+hist(dsw$mmse.0, 
+     main="Histogram for MAP", 
+     xlab="Baseline MMSE", 
+     border="blue", 
+     col="green", 
+     xlim=c(0,35), 
+     las=1, 
+     breaks=5, 
+     prob = TRUE)
+
+(outlier(ds$mmse))
+
+boxplot.stats(ds$mmse, coef = 2)$out# loads of outliers!
+
+skew(ds$mmse) #[1] -2.602142
 #very negatively skewed, no apparent outliers
 
 #episodic memory scores, composite
+boxplot.stats(ds$cogn_ep, coef = 2)$out #loads of outliers
+
 hist(ds$cogn_ep, xlab="Episodic Memory", ylab="y", col = "green") 
 plot(density(dsm$cogn_ep))
 (outlier(dsm$cogn_ep)) # [1] -3.519921
@@ -54,17 +90,99 @@ boxplot(dsm$cogn_global) # shows lots, wide data?
 #negative skew, no apparent outliers
 
 #olfactory scores, BSIT
-hist(ds$total_smell_test, xlab="BSIT", ylab="y", col = "green") #shows the decimal score - need to find out about those
-plot(density(dsm$total_smell_test))
-(outlier(ds$total_smell_test)) # [1] 1, is this an error
-shapiro.test(dsm$total_smell_test)#wide data?, not working
-boxplot(dsm$total_smell_test) # shows none
-skew(dsm$total_smell_test) #[1] -0.5459449
-#negative skew, no outliers
+hist(ds$total_smell_test, xlab="BSIT", ylab="y", col = "green") 
+plot(density(ds$total_smell_test))
+outlier(ds$total_smell_test) # [1] 1, is this an error
+shapiro.test(ds$total_smell_test)#wide data?, not working
+boxplot(ds$total_smell_test) # shows one
+skew(ds$total_smell_test) #[1] -0.8764194
+#negative skew, one outliers
 
+#education
+boxplot.stats(ds$educ, coef = 2)$out # a few outliers
 
 #skewness and kurtosis
 describe(ds)
+
+
+# ----- outliers -----
+outlier_tf = outlier(ds$cogn_ep,logical=TRUE)
+#This gives an array with all values False, except for the outlier (as
+# defined in the package documentation "Finds value with largest difference
+# between it and sample mean, which can be an outlier").  That value is
+# returned as True.
+find_outlier = which(outlier_tf==TRUE,arr.ind=TRUE)
+#This finds the location of the outlier by finding that "True" value within the "outlier_tf" array.
+data_new = data_full[-find_outlier,]
+#This creates a new dataset based on the old data, removing the one row that contains the outlier
+
+
+
+# ----- bivariate-plots -----
+#bivariate plots
+plot(ds$total_smell_test, ds$cogn_ep)
+plot(ds$cogn_ep, ds$total_smell_test)
+
+plot(ds$mmse, ds$cogn_global, main="MMSE/Global", xlab="mmse", ylab="global", col="red") 
+abline(lm(ds$cogn_global~ds$mmse), col="blue")
+
+plot(ds$mmse, ds$cogn_ep, main="MMSE/Episodic", xlab="mmse", ylab="episodic", col="red") 
+abline(lm(ds$cogn_ep~ds$mmse), col="blue")
+
+plot(ds$total_smell_test, ds$cogn_ep, main="BSIT/Episodic", xlab="BSIT", ylab="episodic", col="red") 
+abline(lm(ds$cogn_ep~ds$total_smell_test), col="blue")
+
+plot(ds$total_smell_test, ds$mmse)
+
+plot(ds$total_smell_test, ds$cogn_global)
+plot(ds$total_smell_test, ds$cogn_global, main="Scatterplot Example", 
+     xlab="Global Cognition ", ylab="BSIT ", pch=19)
+abline(lm(ds$total_smell_test~ds$cogn_global), col="red") # regression line (y~x)
+
+library(car)
+scatterplot.matrix(~ds$total_smell_test+ds$cogn_ep+ds$cogn_global+ds$mmse+ds$niareagansc, data=ds,
+                   main="BSIT and Cognition")
+
+scatterplot.matrix(~ds$cdx+ds$cogn_ep+ds$cogn_global+ds$mmse, data=ds,
+                   main="Dementia Diagnosis and Cognition")
+
+scatterplot.matrix(~ds$niareagansc+ds$cogn_ep+ds$cogn_global+ds$mmse, data=ds,
+                   main="AD Pathology and Cognition")
+
+#dsbase
+scatterplot.matrix(~dsbase$total_smell_test+dsbase$cogn_ep+dsbase$cogn_global+dsbase$mmse+dsbase$niareagansc, data=dsbase,
+                   main="BSIT and Cognition")
+
+scatterplot.matrix(~dsbase$cdx+dsbase$cogn_ep+dsbase$cogn_global+dsbase$mmse, data=dsbase,
+                   main="Dementia Diagnosis and Cognition")
+
+scatterplot.matrix(~dsbase$niareagansc+dsbase$cogn_ep+dsbase$cogn_global+dsbase$mmse, data=dsbase,
+                   main="AD Pathology and Cognition")
+
+#ds2base
+scatterplot.matrix(~ds2base$total_smell_test+ds2base$cogn_ep+ds2base$cogn_global+ds2base$mmse+ds2base$niareagansc, data=ds2base,
+                   main="BSIT and Cognition 2")
+
+scatterplot.matrix(~ds2base$cdx+ds2base$cogn_ep+ds2base$cogn_global+ds2base$mmse, data=ds2base,
+                   main="Dementia Diagnosis and Cognition")
+
+scatterplot.matrix(~ds2base$niareagansc+ds2base$cogn_ep+ds2base$cogn_global+ds2base$mmse, data=ds2base,
+                   main="AD Pathology and Cognition")
+
+#more complex
+scatterplot(ds$total_smell_test ~ ds$cogn_ep | ds$fu_year, data=ds, 
+            xlab="Episodic Memory", ylab="BSIT", 
+            main="Enhanced Scatter Plot", 
+            labels=row.names(ds))
+
+#3d are there more dimensions in play here?
+# 3D Scatterplot
+
+attach(mtcars)
+scatterplot3d(ds$total_smell_test,ds$final_dx,ds$cogn_ep, main="3D Scatterplot")
+#not useful
+
+
 
 # ----- Missing Values -----
 # complete.cases(ds) #very few complete cases
@@ -96,14 +214,34 @@ missmap(dsm, main = "Missing values vs observed") #none missing, looks like it's
 #run on base subset of data with no dementia at baseline and 3+ waves
 missmap(ds_subset, main = "Missing values vs observed") #this one looks about the same 
 ####Input here####
-#get remerged data and re-run the subsetting of data sets and re-run this
+#re-run using subsets from 7-subsets-for-analysis
+
+missmap(dsbase, main = "Missing values vs observed") #full version 
+
+missmap(ds1base, main = "Missing values vs observed") #complete cases for BSIT and niareagansc, this doesnt look right
+missmap(ds2base, main = "Missing values vs observed") #complete cases for BSIT 
 
 
 
 # ----- univariate outliers ------
 
 
+
+# bivariate
+boxplot(ds$total_smell_test ~ ds$fu_year, data=ds, main="BSIT reading across waves")  # clear pattern is noticeable.
+boxplot(ds$cogn_ep ~ ds$fu_year, data=ds, main="episodic memory reading across waves")
+
 # ----- multivariate outliers ----
+#malhanobis distance
+result <- mvoutlier.CoDa(ds) #$cogn_global, qqplot = TRUE, method = "quan")
+labelsO<-rownames(result$outlier)[result$outlier[,2]==TRUE]
+xcoord<-result$outlier[result$outlier[,2]==TRUE,1]
+#recalculate chi-squared values for ranks 50 and 49 (i.e., p=(size:(size-n.outliers + 1))-0.5)/size and df = n.variables = 3
+chis = qchisq(((50:49)-0.5)/50,3)
+text(xcoord,chis,label=labelsO)
+
+library(mvoutlier)
+?mvoutlier.CoDa
 
 # ----- residuals ------
 #need wide data here?

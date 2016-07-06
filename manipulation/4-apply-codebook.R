@@ -5,24 +5,23 @@
 ##       Summary: Adding labels
 ## ---------------------------------------------------------------------- ##
 
+#notes: change data cleaning to be before labels at 3
+
+
 options(width=160)
 rm(list=ls())
 cat("\f")
 
 # ---- load_packages ----------------------------------
-library(dplyr)
+requireNamespace("dplyr")
 
 # ----- load-data ------
 getwd()
-ds <-readRDS("./data/derived/ds2.rds")
+ds <-readRDS("./data/derived/ds3.rds")
 str(ds) 
 names(ds)
-
 # ---- add_labels -----------------------------------------------------------
 # Add a descriptive label for each variable except "projid"
-
-####work here####
-#june4, need to change these labels to reflect this project
 
 attr(ds$fu_year, "label") <- "Follow-up year"
 attr(ds$cdx, "label") <- "Clinical dx summary"
@@ -55,6 +54,8 @@ attr(ds$dementia_status, "label") <- "Binary dementia status"
 attr(ds$stroke_status, "label") <- "Binary stroke stats"
 attr(ds$path_status, "label") <- "Binary pathology status: AD or not"
 attr(ds$group_smell, "label") <- "3 groups: smell ability"
+attr(ds$BSIT, "label") <- "Factored version of smell score"
+attr(ds$apoe, "label") <- "Factored version of apoe"
 
 
 
@@ -137,7 +138,7 @@ attr(ds$group_smell, "label") <- "3 groups: smell ability"
 # attr(ds$ldlchlstrl, "label") <- "LDL cholesterol"
 # attr(ds$na, "label")<- "Sodium"
 # attr(ds$alcohol_g, "label") <- "Grams of alcohol per day"
-# attr(ds$bmi, "label") <- "Body mass index" 
+# attr(ds$bmi, "label") <- "Body mass index"
 # attr(ds$htm, "label") <- "Height(meters)"
 # attr(ds$phys5itemsum, "label") <- "Summary of self reported physical activity
 # measure (in hours) ROS/MAP"
@@ -158,13 +159,13 @@ attr(ds$group_smell, "label") <- "3 groups: smell ability"
 # attr(ds$vasc_4dis_sum, "label") <- "Vascular disease burden (4 items) - MAP/MARS
 # only"
 # attr(ds$gait_speed, "label") <- "Gait Speed - MAP"
-# attr(ds$gripavg, "label") <- "Extremity strength" 
+# attr(ds$gripavg, "label") <- "Extremity strength"
 
 
 # ---- save ---------
 #save subset data as ds3
-ds3<-ds
-saveRDS(ds3, "./data/derived/ds3.rds")
+ds4<-ds
+saveRDS(ds4, "./data/derived/ds4.rds")
 
 
 

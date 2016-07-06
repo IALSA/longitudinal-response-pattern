@@ -30,20 +30,20 @@ if (!require("Hmisc")) install.packages('Hmisc')
 # ----- import-raw-files ------
 
 # ---------------------
-# #old version
-# #new files 2016:
-# longa <- read.xls("./data/raw/dataset_465_long.xls") #long format new data
+# # old version
+# # new files 2016:
+# longa <- read.xls("./data/raw/dataset_465_long.xls") #long format, 23918, 6 vars new data
 # basic <- read.xls("./data/raw/dataset_465_basic.xls") #wide format new data
 # #notes: basic has 3125 unique id's and 1803 unique id's in MAP
 # #old original file from RADC 2014:
-# longb <- read.xls("./data/raw/From IALSA server/dataset_285_long03-2014.xlsx") 
+# longb <- read.xls("./data/raw/From IALSA server/dataset_285_long03-2014.xlsx")
 # # 26707, 89
 # oldbasic <- read.xls("./data/raw/From IALSA server/dataset_285_basic03-2014.xlsx")
-# #notes: oldbasic has 3477 unique id's, in 3 different studies (MAP,MARS,ROS) 
+# #notes: oldbasic has 3477 unique id's, in 3 different studies (MAP,MARS,ROS)
 # # and 1696 unique id's in MAP, less than the above: could use left join
 # ---------------------
 
-
+#you need to create csv's from the raw .xls sent from RADC
 longaPath    <- "./data/unshared/raw/dataset_465_long.csv"
 basicPath    <- "./data/unshared/raw/dataset_465_basic.csv"
 longbPath    <- "./data/unshared/raw/dataset_285_long03-2014.csv" 
@@ -65,8 +65,8 @@ oldbasic <- readr::read_csv(oldbasicPath)
 
 # ---- view_data -------------------------------------------------
 #which variables overlap in the data?
-(namesB1 <- names(basic)) #14
-(namesB2 <- names(oldbasic)) #26
+(namesB1 <- names(basic)) #14, no apoe
+(namesB2 <- names(oldbasic)) #26, includes apoe
 (namesLonga <- names(longa)) #6
 (namesLongb <- names(longb)) #89
 
@@ -79,10 +79,10 @@ intersect(namesLonga, namesLongb) # common variables
 
 #check unique ids
 basic$projid %>% unique() %>% length() #3125
-oldbasic$projid %>% unique() %>% length() #3477, more participants?
+oldbasic$projid %>% unique() %>% length() #3477, more participants in the old pull?
 
 # ----- merge ------
-#update june 14 changed method of merging as there are errors if you do not use this method:
+#update june 14 changed method of merging as there are errors/duplicate entried if you do not use this method:
 # merge old version of basic and long together into one long format file
 # then merge new version of basic and long togethe into long format file
 # then join both longs together with: df = left_join(demo, df)
@@ -91,6 +91,8 @@ oldbasic$projid %>% unique() %>% length() #3477, more participants?
 old <- dplyr::full_join(oldbasic, longb, by = c("projid","study"))
 #reorder variables, 119
 old1 <- dplyr::select(old, projid, study, scaled_to=scaled_to.x, fu_year, everything()) 
+names(old)
+names(old1) #fine
 old <- old1
 rm(old1)
 
@@ -100,14 +102,17 @@ new <- dplyr::full_join(basic, longa, by = c("projid","study"))
 #what names are overlapping?
 (namesold <- names(old)) #113
 (namesnew <- names(new)) #18
-intersect(namesold, namesnew)
+intersect(namesold, namesnew) #12 vars in common
 # [1] "projid"       "study"        "scaled_to"    "fu_year"      "age_bl"      
 # [6] "age_death"    "educ"         "msex"         "race"         "spanish"     
 # [11] "dcfdx"        "age_at_visit"
 
 ds1 <- dplyr::left_join(new, old, by = c("projid","study", "fu_year"))
-ds1 <- ds1[ , !duplicated(colnames(ds1))] #removes one
-ds1 <- dplyr::select(ds1, projid, study, scaled_to=scaled_to.x, fu_year, everything(), -contains(".y")) # -scaled_to.y, -age_bl.y,-age_death.y, -educ.y,-msex.y, -race.y ,-spanish.y, -dcfdx.y) 
+names(ds1)
+#duplicates ".y" for vars that intersect above + one double of "scaled_to.y"
+ds1 <- ds1[ , !duplicated(colnames(ds1))] #removes the double of "scaled_to.y"
+ds1 <- dplyr::select(ds1, projid, study, scaled_to=scaled_to.x, fu_year, everything(), -contains(".y")) 
+# removed duplicated of the intersected vars: -scaled_to.y, -age_bl.y,-age_death.y, -educ.y,-msex.y, -race.y ,-spanish.y, -dcfdx.y) 
 #0-6 fu_years with moreinfo from the new data, missing info from old data
 names(ds1)#118
 
@@ -125,7 +130,6 @@ names(longb)
 
 #check number of unique participants 
 ds1$projid %>% unique() %>% length() #3125, left join
-
 ds1$fu_year %>% unique() %>% length() #24, left join
 
 #check for duplicates
@@ -134,9 +138,10 @@ dsd0 <- ds1 %>% dplyr::group_by(projid, fu_year) %>% dplyr::filter(n()>1) %>% dp
 rm(dsd0)
 
 
+ds1$projid %>% unique() %>% length() #3125
 basic$projid %>% unique() %>% length() #3125
 longa$projid %>% unique() %>% length() #3124
-longc$projid %>% unique() %>% length() #3476
+longb$projid %>% unique() %>% length() #3476 - why more here?? this is the old file, participants die off??
 oldbasic$projid %>% unique() %>% length() #3477
 
 
