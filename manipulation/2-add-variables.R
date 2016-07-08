@@ -36,8 +36,8 @@ str(ds$age_death)
 # ---- tweak-data ---------------------------------------
 ds2 <- ds %>% 
   dplyr::mutate(
-    vital_status    =  ifelse(is.na(age_death) , 0 , 1), # jamie, this is it.
-    dementia_status =  ifelse(is.na(age_death) , 0 , 1),
+    vital_status    =  ifelse(is.na(age_death), 0 , 1), # jamie, this is it.
+    dementia_status =  ifelse(is.na(age_death), 0 , 1),
     stroke_status   =  stroke_cum,
     path_status     =  ad_reagan,
     apoe_genotype   =  ifelse(apoe_genotype %in% c(44,34,24), 1, 0),
@@ -45,7 +45,7 @@ ds2 <- ds %>%
                                    labels=c("anosmic", "hyposmic", "normosmic")))
 )
 #can save here if needed, in order to load it into next file: 4-apply-codebook
-saveRDS(ds2, "./data/derived/ds2.rds")
+saveRDS(ds2, "./data/unshared/derived/ds2.rds")
 
 #######################################
 ## Below is the older version of the same code, do 

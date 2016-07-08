@@ -14,7 +14,7 @@ requireNamespace("dplyr")
 
 # ----- load-data ------
 getwd()
-ds <-readRDS("./data/derived/ds2.rds")
+ds <-readRDS("./data/unshared/derived/ds2.rds")
 str(ds) 
 names(ds)
 
@@ -25,12 +25,12 @@ dplyr::n_distinct(ds$projid) #1803
 ####help###
 # apoe needs to have the values come all the way down the column!
 # install.packages("zoo")
-library(zoo)
-?na.locf #last observation carried forward
-
-any(is.na(ds$apoe_genotype))
-ds$apoe_genotype <- na.locf(ds$apoe_genotype)
-ds$apoe <- na.locf(ds$apoe)
+# library(zoo)
+# ?na.locf #last observation carried forward
+# 
+# any(is.na(ds$apoe_genotype))
+# ds$apoe_genotype <- na.locf(ds$apoe_genotype)
+# ds$apoe <- na.locf(ds$apoe)
 #any other missing constant values?
 any(is.na(ds$race))
 any(is.na(ds$sex)) #false
@@ -166,7 +166,45 @@ hist(ds$mmse) #neg skew, one outlier
 boxplot(ds$mmse) #many outliers at the low end
 
 
+## Graph 1
+library(ggplot2)
+source("./scripts/common-functions.R")
+source("./scripts/graph-presets.R")
+  ids <- sample(unique(as.numeric(ds$projid)),100)
+  ds %>% 
+    dplyr::mutate(
+      id            = as.integer(projid),
+      stroke_status = factor(stroke_status),
+      niareagansc   = factor(niareagansc)
+    ) %>% 
+    # dplyr::filter(id %in% ids) %>%
+    ggplot(aes(x=age_at_visit, y=mmse)) +
+    # ggplot(aes(x=age_at_visit, y=niareagansc)) +
+    # geom_line(aes(group=id, color=stroke_status), size=1.1, alpha=.5)+
+    geom_line(aes(group=id, color=niareagansc), size=1.1, alpha=.5)+
+    # scale_color_manual(values = c("0"="grey60", "1"="red") )+
+    facet_grid(apoe~group_smell)+
+    main_theme
 
+
+## Graph 2  
+  ids <- sample(unique(as.numeric(ds$projid)),100)
+  ds %>% 
+    dplyr::mutate(
+      id            = as.integer(projid),
+      stroke_status = factor(stroke_status),
+      niareagansc   = factor(niareagansc)
+    ) %>% 
+    # dplyr::filter(id %in% ids) %>%
+    ggplot(aes(x=age_at_visit, y=mmse)) +
+    # ggplot(aes(x=age_at_visit, y=niareagansc)) +
+    # geom_line(aes(group=id, color=stroke_status), size=1.1, alpha=.5)+
+    geom_line(aes(group=id, color=apoe), size=.7, alpha=.7)+
+    scale_color_manual(values = c("0"="grey60", "1"="red") )+
+    facet_grid(niareagansc~group_smell)+
+    main_theme
+  
+  
 # ---- save ---------
 #save subset data as ds3
 ds3<-ds
