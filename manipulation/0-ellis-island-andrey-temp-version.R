@@ -100,7 +100,7 @@ old %>%
 
 
 # merge old version of basic and long together into one long format file
-old <- dplyr::full_join(oldbasic, longb, by = c("projid","study"))
+# old <- dplyr::full_join(oldbasic, longb, by = c("projid","study"))
 #reorder variables, 119
 old1 <- dplyr::select(old, projid, study, scaled_to=scaled_to.x, fu_year, everything()) 
 names(old)
@@ -113,22 +113,27 @@ rm(old1)
 #   dplyr::filter(projid %in% ids)
 # t(d_wide)
   
-
-dsd0 <- old %>% dplyr::group_by(projid, fu_year) %>% dplyr::filter(n()>1) %>% dplyr::summarise(n=n())
-
-ds_duplicats <- old %>% 
-  dplyr::group_by(projid, study, fu_year) %>% 
-  dplyr::filter(n()>1) %>% 
-  dplyr::summarise(n=n()) %>% 
-  dplyr::ungroup() %>% 
-  dplyr::group_by(study) %>% 
-  dplyr::summarize(n=())
-
-ds_duplicats %>% 
-  dplyr::group_by(study)
+# 
+# dsd0 <- old %>% dplyr::group_by(projid, fu_year) %>% dplyr::filter(n()>1) %>% dplyr::summarise(n=n())
+# 
+# ds_duplicats <- old %>% 
+#   dplyr::group_by(projid, study, fu_year) %>% 
+#   dplyr::filter(n()>1) %>% 
+#   dplyr::summarise(n=n()) %>% 
+#   dplyr::ungroup() %>% 
+#   dplyr::group_by(study) %>% 
+#   dplyr::summarize(n=())
+# 
+# ds_duplicats %>% 
+#   dplyr::group_by(study)
 
 # merge new version of basic and long togethe into long format file
-new <- dplyr::full_join(basic, longa, by = c("projid","study"))
+d_wide_new <- basic %>% 
+  dplyr::filter(study=="MAP")
+d_long_new <- longa %>% 
+  dplyr::filter(study=="MAP")
+
+new <- dplyr::full_join(d_wide_new, d_long_new, by = c("projid","study"))
 
 #what names are overlapping?
 (namesold <- names(old)) #113
@@ -175,20 +180,16 @@ longa$projid %>% unique() %>% length() #3124
 longb$projid %>% unique() %>% length() #3476 - why more here?? this is the old file, participants die off??
 oldbasic$projid %>% unique() %>% length() #3477
 
-
-# ----- RADC-to-MAP ------
-#subset down to just MAP
-
-## write out only MAP project data
-ds1$study<- as.factor(ds1$study)
-is.factor(ds1$study)
-levels(ds1$study) #2
-subsets<-split(ds1, ds1$study, drop=TRUE)
-ds1 <-subsets[[1]]
-class(ds1)
+# check for other studies
+table(ds1$study)
+# check for duplication
+ds1 %>% 
+  dplyr::group_by(projid, fu_year) %>% 
+  dplyr::filter(n()>1) %>% 
+  dplyr::summarise(n=n())
 
 # ---- save -----
-saveRDS(ds1,"./data/derived/ds0_raw.rds")
+saveRDS(ds1,"./data/unshared/derived/ds0_raw.rds")
 
 #now import this file into 1-subsetting
 #or skip straight to 4-apply-codebook for GitHub
