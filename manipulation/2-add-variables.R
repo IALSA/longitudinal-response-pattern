@@ -19,27 +19,67 @@ requireNamespace("dplyr")
 # ----- load-data ------
 #load data from the 1-subsetting file
 #create the na.omit file after labeling: 4-apply-codebook
-ds <- readRDS("./data/derived/ds0.rds") 
+ds <- readRDS("./data/unshared/derived/ds0.rds") 
 #ds0: 11225 obs of 28 vars
 
 # ds0 <- read.csv("./data/derived/SPSS/MAPjk.csv") #csv version example code
 
 
 #olfaction variable
-describe(ds$total_smell_test) #4522, 32 unique, 6703 missing
-describe(ds$projid) #11225, 1803 unique
+Hmisc::describe(ds$total_smell_test) #4522, 32 unique, 6703 missing
+Hmisc::describe(ds$projid) #11225, 1803 unique
 names(ds)
 is.numeric(ds$total_smell_test)
 
+str(ds$age_death)
+
+# ---- tweak-data ---------------------------------------
+ds2 <- ds %>% 
+  dplyr::mutate(
+    vital_status    =  ifelse(is.na(age_death) , 0 , 1), # jamie, this is it.
+    dementia_status =  ifelse(is.na(age_death) , 0 , 1),
+    stroke_status   =  stroke_cum,
+    path_status     =  ad_reagan,
+    apoe_genotype   =  ifelse(apoe_genotype %in% c(44,34,24), 1, 0),
+    group_smell     =  ordered(cut(total_smell_test, c(0,5,10,12), 
+                                   labels=c("anosmic", "hyposmic", "normosmic")))
+)
+#can save here if needed, in order to load it into next file: 4-apply-codebook
+saveRDS(ds2, "./data/derived/ds2.rds")
+
+#######################################
+## Below is the older version of the same code, do 
+
+
+
+
+
+
+# ---- Groupings for smell ----------------- 
+ds$group_smell <- ordered(cut(ds$total_smell_test, c(0,5,10,12), labels=c("anosmic", "hyposmic", "normosmic")))
+
+levels(ds$group_smell)
+summary(ds$group_smell)
 # ---- Code binary variables for events ----------------- 
 # event at 1: 
 # 0 = alive/no event 
 # 1 = dead/event
 
 #make vital status a binary variable, 
+subject_is_dead <- ds$age_death > 0 
+depended_value <- ifelse (subject_is_dead, 1 , 0 )
+# table(depended_value)
+# d <- with ( ds, depended_value )
+# table(d)  
+ds$vital_status <- as.numeric ( with ( ds, depended_value ))
+ds$vital_status[is.na(ds$vital_status)] <- 0
+is.numeric(ds$vital_status)
+
+#make vital status a binary variable, 
 ds$vital_status <- as.numeric ( with ( ds, ifelse ( ( ds$age_death > 0 ), 1 , 0 ) ) )
 ds$vital_status[is.na(ds$vital_status)] <- 0
 is.numeric(ds$vital_status)
+
 
 #code binary events for dementia 1 = event, 0 = no event
 # could just Use dementia variable, but there are many missing from the new data set for that one
@@ -96,7 +136,7 @@ summary(ds$group_smell)
 #------------------------- save files
 ds2<-ds
 #can save here if needed, in order to load it into next file: 4-apply-codebook
-saveRDS(ds2, "./data/derived/ds2.rds")
+# saveRDS(ds2, "./data/derived/ds2.rds")
 
 # next go to 3- data-cleaning then 4-apply-codebook
 #after labels are applied, continue to transformations.

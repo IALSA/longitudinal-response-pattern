@@ -23,7 +23,7 @@ if (!require("Amelia")) install.packages('Amelia')
 
 # ----- load-data ------
 getwd()
-ds <-readRDS("./data/derived/ds0_raw.rds")
+ds <-readRDS("./data/unshared/derived/ds0_raw.rds")
 str(ds) 
 names(ds)
 
@@ -64,7 +64,7 @@ dsw$projid %>% unique() %>% length() #1803
 
 #check missing data
 #this can be intensive, save everything in case computer crashes 
-missmap(dsw, main = "Missing values vs observed") 
+Amelia::missmap(dsw, main = "Missing values vs observed") 
 
 dplyr::n_distinct(ds$fu_year) #20 waves
 dplyr::n_distinct(ds$projid) #1803 subjects
@@ -78,7 +78,7 @@ rm(dsd)
 # ---- save ---------
 #save data as ds0
 ds0 <- dsw
-saveRDS(ds0, "./data/derived/ds0.rds")
+saveRDS(ds0, "./data/unshared/derived/ds0.rds")
 
 
 
