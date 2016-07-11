@@ -208,7 +208,7 @@ source("./scripts/graph-presets.R")
 # ---- save ---------
 #save subset data as ds3
 ds3<-ds
-saveRDS(ds3, "./data/derived/ds3.rds")
+saveRDS(ds3, "./data/unshared/derived/ds3.rds")
 #continue on to 4-apply-codebook
 
 

@@ -17,7 +17,7 @@ requireNamespace("dplyr")
 
 # ----- load-data ------
 getwd()
-ds <-readRDS("./data/derived/ds3.rds")
+ds <-readRDS("./data/unshared/derived/ds3.rds")
 str(ds) 
 names(ds)
 # ---- add_labels -----------------------------------------------------------
@@ -165,7 +165,7 @@ attr(ds$apoe, "label") <- "Factored version of apoe"
 # ---- save ---------
 #save subset data as ds3
 ds4<-ds
-saveRDS(ds4, "./data/derived/ds4.rds")
+saveRDS(ds4, "./data/unshared/derived/ds4.rds")
 
 
 

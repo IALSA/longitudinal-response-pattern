@@ -21,7 +21,7 @@ requireNamespace("dplyr")
 #create the na.omit file after labeling: 4-apply-codebook
 ds <- readRDS("./data/unshared/derived/ds0.rds") 
 #ds0: 11225 obs of 28 vars
-
+ 
 # ds0 <- read.csv("./data/derived/SPSS/MAPjk.csv") #csv version example code
 
 
