@@ -20,16 +20,47 @@ library(magrittr)
 # ----- load-data ------
 getwd()
 #full version long
-ds <-readRDS("./data/derived/ds4l.rds")
+ds <-readRDS("./data/unshared/derived/ds4.rds")
 #full version wide
-dsw <-readRDS("./data/derived/ds4w.rds")
+# dsw <-readRDS("./data/derived/ds4w.rds")
 
 #complete cases for BSIT and niareagansc
-ds1 <- readRDS("./data/derived/ds4ls.rds")
+# ds1 <- readRDS("./data/derived/ds4ls.rds")
 #complete cases for BSIT 
-ds2 <- readRDS("./data/derived/ds4ls2.rds")
+# ds2 <- readRDS("./data/derived/ds4ls2.rds")
 
 str(ds) 
+names(ds)
+
+# ---- tweak-data -------------------
+ds <- ds %>% 
+  dplyr::mutate(
+    id = as.integer(projid)
+  )
+
+# ---- subset-variables ---------------------------------
+t <- table(ds$fu_year, ds$cdx); t[t==0] <- "."; t
+names(ds)
+
+keep_these_ids <-  ds %>% 
+  dplyr::select(id, fu_year, cdx) %>% 
+  dplyr::filter(fu_year==0, cdx == 1 ) %>% 
+  dplyr::select(id)
+keep_these_ids <- as.integer(keep_these_ids$id)
+length(unique(keep_these_ids)) # 1236
+length(unique(ds$id)) # 1803
+
+ds_subset <- ds %>% 
+  dplyr::filter(id %in% keep_these_ids)
+
+length(unique(ds_subset$id))
+
+ds_subset %>% 
+  # dplyr::slice(1:10)
+  dplyr::group_by(cdx) %>% 
+  dplyr::summarize(count = n())
+
+t <- table(ds_subset$fu_year, ds_subset$cdx); t[t==0] <- "."; t
 names(ds)
 
 
