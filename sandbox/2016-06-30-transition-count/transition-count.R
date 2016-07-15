@@ -25,7 +25,8 @@ if (!require("DT")) install.packages('DT')
 dataPath <- "../MAP/data-unshared/raw/ds0_raw.rds"
 
 # ---- load-data ---------------------------------------------------------------
-ds0 <- readRDS(dataPath)
+ds0 <- readRDS(dataPath) 
+ds0 <- ds0 %>% dplyr::filter(study == "MAP ")
 # ---- inspect-data -------------------------------------------------------------
 variables_to_select <- c("id", "fu_year",  "age_death", "age_at_visit", "age_bl","stroke_cum")
 # variables_to_select <- c("projid", "fu_year", "stroke_cum")
@@ -48,10 +49,10 @@ ds_long %>%
 # ---- tweak-data --------------------------------------------------------------
 
 #check for duplicates
-dsd0 <- ds_long %>% dplyr::group_by(id, fu_year) %>% dplyr::filter(n()>1) %>% dplyr::summarise(n=n())
+ds_duplicates <- ds_long %>% dplyr::group_by(id, fu_year) %>% dplyr::filter(n()>1) %>% dplyr::summarise(n=n())
 # dsd0 shoud have no duplicates. Obs should equal 0
 # July 4, 2016: there are many duplicates - inviestigate why this is in MAP curator
-rm(dsd0)
+rm(ds_duplicates)
 
 #remove duplicates for now
 ds_distinct <- ds_long %>%
@@ -98,14 +99,19 @@ d <- ds_wide %>% dplyr::select_(.dots = dots)
 d[is.na(d)] <- "."
 # ds <- ds[,1:4]
 # head(d)
+ordered_var_names <- paste0("stroke_cum_",0:16)
+ordered_var_names_id <- c("id",ordered_var_names)
+str(d)
+
+d <- d %>% dplyr::select_(.dots = ordered_var_names_id)
 
 # Create a string variables that records the response pattern of each individual
 # see http://stackoverflow.com/questions/14568662/paste-multiple-columns-together-in-r
 # varnames <- "stroke_cum"
-d$pattern <- apply(d[,varnames], 1 , paste , collapse = "" )
+d$pattern <- apply(d[,ordered_var_names], 1 , paste , collapse = "" )
 
 # remove the unnecessary rows
-keep_variables <- setdiff(colnames(d), varnames)
+keep_variables <- setdiff(colnames(d), ordered_var_names)
 d <- as.data.frame(d[ , keep_variables ])
 
 ds_pattern <- d %>% 
