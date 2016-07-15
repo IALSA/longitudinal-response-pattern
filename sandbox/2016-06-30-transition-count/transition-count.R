@@ -97,6 +97,30 @@ d <- d %>% dplyr::select_(.dots = dots)
 # see http://stackoverflow.com/questions/14568662/paste-multiple-columns-together-in-r
 d$pattern <- apply(d[,ordered_var_names], 1 , paste , collapse = "" )
 
+# The string to search in
+s <- "aababac"
+# The character to search for
+p <- "a"
+# Replace all occurrences by the empty string - note that gsub uses regular expressions, so escape p accordingly
+s2 <- gsub(p,"",s) # Count the length difference
+numOcc <- nchar(s) - nchar(s2) # numOcc now contains the number of occurrences of p in s
+countCharOccurrences <- function(char, s) {
+  s2 <- gsub(char,"",s)
+  return (nchar(s) - nchar(s2))
+}
+countCharOccurrences("a", "aabbaa")
+
+d <- d %>% 
+  # dplyr::mutate(stroke_ever = countCharOccurrences("1", pattern)) 
+  dplyr::mutate(
+    stroke_ever  = ifelse(countCharOccurrences("1", pattern)==0L,FALSE,TRUE),
+    stroke_start = ifelse(countCharOccurrences("0", pattern)==0L, TRUE, FALSE),
+    pattern      = ifelse(!stroke_ever,0,
+                          ifelse(stroke_start,"1",pattern))
+    
+  ) 
+head(d)  
+
 # remove the unnecessary columns
 keep_variables <- setdiff(colnames(d), ordered_var_names)
 d <- as.data.frame(d[ , keep_variables ])
