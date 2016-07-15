@@ -104,23 +104,30 @@ p <- "a"
 # Replace all occurrences by the empty string - note that gsub uses regular expressions, so escape p accordingly
 s2 <- gsub(p,"",s) # Count the length difference
 numOcc <- nchar(s) - nchar(s2) # numOcc now contains the number of occurrences of p in s
-countCharOccurrences <- function(char, s) {
+n_char_f <- function(char, s) {
   s2 <- gsub(char,"",s)
   return (nchar(s) - nchar(s2))
 }
-countCharOccurrences("a", "aabbaa")
+n_char_f("a", "aabbaa")
 
 d <- d %>% 
   # dplyr::mutate(stroke_ever = countCharOccurrences("1", pattern)) 
-  dplyr::mutate(
-    stroke_ever  = ifelse(countCharOccurrences("1", pattern)==0L,FALSE,TRUE),
-    stroke_start = ifelse(countCharOccurrences("0", pattern)==0L, TRUE, FALSE),
-    pattern      = ifelse(!stroke_ever,0,
-                          ifelse(stroke_start,"1",pattern))
+  dplyr::mutate(  
+    stroke_ever  = ifelse(n_char_f("1", pattern)==0L,FALSE,TRUE),
+    stroke_start = ifelse(n_char_f("0", pattern)==0L, TRUE, FALSE),
     
-  ) 
-head(d)  
+    # dot_rule     = gsub(".0", "00", pattern),
+    # dot_rule     = gsub(".", "0", pattern),
+    # dot_rule     = ifelse(substr(pattern,1,1)==".", T,F),
+    dot_rule     = ifelse(substr(pattern,1,1)==".", T,F) 
 
+
+    # pattern      = ifelse(!stroke_ever,0,
+    #                       ifelse(stroke_start,"1",pattern))
+    
+  )   
+head(d)    
+# table(d$dot_rule)
 # remove the unnecessary columns
 keep_variables <- setdiff(colnames(d), ordered_var_names)
 d <- as.data.frame(d[ , keep_variables ])
