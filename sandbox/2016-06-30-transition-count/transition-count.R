@@ -27,6 +27,7 @@ dataPath <- "../MAP/data-unshared/raw/ds0_raw.rds"
 # ---- load-data ---------------------------------------------------------------
 ds0 <- readRDS(dataPath) 
 ds0 <- ds0 %>% dplyr::filter(study == "MAP ")
+
 # ---- inspect-data -------------------------------------------------------------
 variables_to_select <- c("id", "fu_year",  "age_death", "age_at_visit", "age_bl","stroke_cum")
 # variables_to_select <- c("projid", "fu_year", "stroke_cum")
@@ -37,7 +38,6 @@ ds_long <- ds0 %>%
 # ds_long$stroke_cum[is.na(ds_long$stroke_cum)] <- "."
 # ds <- ds[,1:4]
 head(ds_long)
-
 ds_long %>%
   DT::datatable(
     class     = 'cell-border stripe',
@@ -47,7 +47,6 @@ ds_long %>%
   )
 
 # ---- tweak-data --------------------------------------------------------------
-
 #check for duplicates
 ds_duplicates <- ds_long %>% dplyr::group_by(id, fu_year) %>% dplyr::filter(n()>1) %>% dplyr::summarise(n=n())
 # dsd0 shoud have no duplicates. Obs should equal 0
@@ -74,61 +73,52 @@ ds_wide <- ds_distinct %>%
   # dplyr::mutate(wave = paste0("t", fu_year)) %>%
   tidyr::unite(temp, variable, fu_year) %>%
   tidyr::spread(temp, value)
+
 ds_wide %>% dplyr::glimpse()
 
-names(ds_wide)
-
-knitr::kable(ds_wide %>% 
-               dplyr::group_by(temp) %>% 
-               dplyr::summarize(n()))
-
-
-
-# ---- missing-values-table --------------------------------------------------------------
-
-
-# ---- binary-values-table --------------------------------------------------------------
+# ---- compute-pattern --------------------------------------------------------------
 # using ds_wide data
 
 # select the variables over which you'd like to view response pattern
+focal_variable <- "stroke_cum"
 varnames <- names(ds_wide %>%
-                    dplyr::select(contains("stroke_cum")))
-dots = c("id", varnames)
+                    dplyr::select(contains(focal_variable)))
+ordered_var_names <- paste0(focal_variable,"_",0:16)
+dots = c("id", ordered_var_names)
 d <- ds_wide %>% dplyr::select_(.dots = dots)
-# recode NA 
+# recode NA for easier inspection of the patterns
 d[is.na(d)] <- "."
-# ds <- ds[,1:4]
-# head(d)
-ordered_var_names <- paste0("stroke_cum_",0:16)
-ordered_var_names_id <- c("id",ordered_var_names)
-str(d)
-
-d <- d %>% dplyr::select_(.dots = ordered_var_names_id)
+# compile the pattern from individual waves
+ordered_var_names <- paste0(focal_variable,"_",0:16)
+# reorder variables to ensure correct sequence of waves
+d <- d %>% dplyr::select_(.dots = dots)
 
 # Create a string variables that records the response pattern of each individual
 # see http://stackoverflow.com/questions/14568662/paste-multiple-columns-together-in-r
-# varnames <- "stroke_cum"
 d$pattern <- apply(d[,ordered_var_names], 1 , paste , collapse = "" )
 
-# remove the unnecessary rows
+# remove the unnecessary columns
 keep_variables <- setdiff(colnames(d), ordered_var_names)
 d <- as.data.frame(d[ , keep_variables ])
 
+# compute frequency patternn
 ds_pattern <- d %>% 
   dplyr::group_by(pattern) %>% 
   dplyr::summarize(count = n()) %>% 
   dplyr::arrange(pattern)
   # dplyr::arrange(desc(count))
 
-# ds_pattern %>%
-#   DT::datatable(
-#     class     = 'cell-border stripe',
-#     caption   = "Response pattern across time points ( dots stand for missing values)",
-#     filter    = "none",
-#     options   = list(pageLength = 10, autoWidth = TRUE)
-#   )
+ds_pattern %>%
+  DT::datatable(
+    class     = 'cell-border stripe',
+    caption   = "Response pattern across time points ( dots stand for missing values)",
+    filter    = "none",
+    options   = list(pageLength = 10, autoWidth = TRUE)
+  )
 
 # ---- inspect-tables -----------------------------
+
+# ---- line-graph-stroke-cum ---------------------
 str(ds_distinct)
 library(ggplot2)
 dg <- ds_distinct %>% 
@@ -145,7 +135,7 @@ g
 
 
 # ---- reproduce ---------------------------------------
-rmarkdown::render(input = "./sandbox/2016-06-17-pattern-table/response-pattern-freqs.Rmd" ,
+rmarkdown::render(input = "./sandbox/2016-06-30-transition-count/transition-count.Rmd" ,
                   output_format="html_document", clean=TRUE)
 
 

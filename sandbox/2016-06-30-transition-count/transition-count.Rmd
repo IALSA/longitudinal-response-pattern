@@ -1,7 +1,8 @@
 ---
-title: "Response patterns : frequencies"
+title: "Transition Counts"
 output:
   html_document:
+    css: ~/GitHub/longitudinal-response-pattern/libs/css/sidebar.css
     keep_md: yes
     toc: yes
 ---
@@ -75,16 +76,20 @@ read_chunk("./sandbox/2016-06-30-transition-count/transition-count.R")
 ```{r tweak-data, echo=echoChunks, results='show', message=FALSE}
 ```
 
-
-
-<!-- Basic table view.   -->
-```{r missing-values-table, echo=echoChunks, results='show', message=FALSE, eval=F}
-```
-
-<!-- Basic graph view.   -->
-```{r binary-values-table, echo=echoChunks, results='show', message=FALSE}
+### Long to wide
+```{r long-to-wide, echo=echoChunks, results='show', message=FALSE}
 ```
 
 
+### Compute pattern
+
+```{r compute-pattern, echo=echoChunks, results='show', message=FALSE}
+```
+
+### Cumulative stroke
+```{r line-graph-stroke-cum, echo=echoChunks, results='show', message=FALSE}
+```
+
+### More graphs
 
 
